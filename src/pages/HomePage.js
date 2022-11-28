@@ -1,6 +1,9 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import styled from "styled-components";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { navigateToAdmin } from "../routes/coordinator";
 
 const Form = styled.form`
   display: flex;
@@ -8,7 +11,10 @@ const Form = styled.form`
   width: 50vw;
   gap: 5px;
 `;
+
 function HomePage() {
+  const navigate = useNavigate()
+
   const [form, setForm] = useState({ email: "", senha: "" });
 
   const onChange = (event) => {
@@ -19,7 +25,27 @@ function HomePage() {
   const submitForm = (event) => {
     event.preventDefault();
     console.log(form);
+    login()
   };
+
+  const login = () => {
+    const aluno = "darvas"
+    const body = {
+      email: form.email,
+      password: form.senha
+    }
+    axios
+      .post(`https://us-central1-labenu-apis.cloudfunctions.net/labeX/${aluno}/login`, body)
+      .then((response) => {
+        console.log(response.data.token)
+        localStorage.setItem("token", response.data.token)
+        navigateToAdmin(navigate)        
+      })
+      .catch((error) => {
+        console.log(error.response.status)
+      })
+  }
+
   return (
     <main>
       <Header />
@@ -30,7 +56,7 @@ function HomePage() {
           id="email"
           name="email"
           type="text"
-          input="form.email"
+          value={form.email}
           onChange={onChange}
           placeholder="email"
           required
@@ -41,7 +67,7 @@ function HomePage() {
           id="senha"
           name="senha"
           type="password"
-          input="form.senha"
+          value={form.senha}
           onChange={onChange}
           placeholder="senha"
           required
